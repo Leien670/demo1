@@ -1,0 +1,110 @@
+
+<html lang="en">
+<head>
+    <title>酒店管理平台</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+
+<!-- 标题 -->
+<div class="jumbotron jumbotron-fluid p-3">
+    <div class="container">
+        <h1 class="display-3">酒店管理平台</h1>
+        <p class="lead"><span class="badge badge-pill badge-danger">牛耳教育</span></p>
+    </div>
+</div>
+
+<!-- 主体 -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-1 "></div>
+        <div class="col-lg-9 ">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>房号</th>
+                    <th>客人名</th>
+                    <th>入住时间</th>
+                    <th>天数</th>
+                    <th>房间单价</th>
+                    <th style="width:15%">操作</th>
+                </tr>
+                </tr>
+                </thead>
+                <tbody id="checkins">
+
+                </tbody>
+            </table>
+
+
+        </div>
+    </div>
+</div>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script>
+    $(function () {
+        $.ajax({
+            url:"checkin?action=show",
+            dataType:"json",
+            success:function (data) {
+                data.forEach(checkin=>{
+                    let state=``
+                    if(checkin.state=='已结账'){
+                        state=` disabled" disabled`
+                    }else{
+                        state=` btn-danger "`
+                    }
+
+                    let totalprice=checkin.room.price*checkin.num
+
+                    let $tr=$(`
+                    <tr>
+                            <td>${checkin.room.roomId}</td>
+                            <td>${checkin.name}</td>
+                            <td>${checkin.checkinTime}</td>
+							<td>${checkin.num}</td>
+                            <td>${checkin.room.price}</td>
+
+
+                            <td>
+                                <button type="buttom" id="${checkin.cid}" class="btn btn-block ${state} onclick="checkin(${checkin.cid},${totalprice},${checkin.room.roomId})">${checkin.state}</button>
+							</td>
+                        </tr>
+`)
+                    $("#checkins").append($tr)
+                })
+
+            }
+        })
+    })
+
+    /**
+     * 结账的ajax请求
+     * @param cid
+     * @param totalprice
+     * @param roomid
+     */
+    function checkin(cid,totalprice,roomid) {
+        $.ajax({
+            url:"checkin?action=update",
+            data:{cid:cid,totalprice:totalprice,roomid:roomid},
+            success:function (data) {
+                if(data){
+                    alert(`共计:${totalprice},结账完成！`)
+                    $("#"+cid).text("已结账")
+
+                    $("#"+cid).prop("disabled",true)
+
+
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>
